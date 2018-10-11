@@ -15,6 +15,7 @@ def add_probability(nodes, line):
     # Add each probability to the CPT of each node
     prob = line.replace('|',' ').replace(',',' ').replace('=',' ').split()
     name = prob[0][1:]
+    prob[len(prob)-1] = float( prob[len(prob)-1] )
     nodes[name]['probabilities'].append(prob)
     return nodes
 
@@ -37,9 +38,10 @@ def main():
         for i in range(0,len(parents)):
             parents[i] = parents[i][1:]
         nodes[node]['parents'] = parents
-
+    print("\n")
     pp.pprint(nodes)
-
+    # Test is a float
+    # print(nodes['GrassWet']['probabilities'][0][3]+nodes['GrassWet']['probabilities'][1][3])
     # Queries
     num_que = int(file_input.readline())
     queries = []
