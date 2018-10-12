@@ -92,6 +92,7 @@ def all_combinations(probabilitesArray):
         combinations.append(copy.deepcopy(probabilitesArray))
     half_true_half_false(probabilitesArray, 0, int(num_combinations/2), combinations, '+', 0)
     half_true_half_false(probabilitesArray, int(num_combinations/2), num_combinations, combinations, '-', 0)
+    return combinations
     #print(combinations)
 
 def half_true_half_false(probabilitesArray,  inicio, fin, combinations, sign, i):
@@ -101,6 +102,22 @@ def half_true_half_false(probabilitesArray,  inicio, fin, combinations, sign, i)
             combinations[j][i]= sign+letter
         half_true_half_false(probabilitesArray, inicio, inicio+int((fin-inicio)/2), combinations, '+', i+1)
         half_true_half_false(probabilitesArray, inicio+int((fin-inicio)/2), fin, combinations, '-', i+1)
+
+def rotate_array(combinations):
+    expanded = []
+    for combination in combinations:
+        aux = []
+        for j in range (0, len(combination)):
+            aux.append(combination)
+        for i in  range (0, len(aux)):
+            new_array = []
+            for element in  aux[i]:
+                query = element
+                aux[i].remove(query)
+                aux[i].insert(0,query)
+                new_array.append(copy.deepcopy(aux[i]))
+        expanded.append(copy.deepcopy(new_array))
+    #print(expanded)
 
 def main():
     file_input = fileinput.input()
@@ -145,8 +162,8 @@ def main():
     #merge conflicts
     #queries.append(line.split("="))
     #calculate the rest of the table
-    #add_additional_probabilities(nodes)
-    #all_combinations(["S", "M", "T"])
+    combinations = all_combinations(["S", "M", "T"])
+    rotate_array(combinations)
 
 if __name__ == "__main__":
     main()
