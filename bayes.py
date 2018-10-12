@@ -20,7 +20,6 @@ def add_probability(nodes, line):
     nodes[name]['probabilities'].append(prob)
     return nodes
 
-
 def add_additional_probabilities(nodes):
     for node in nodes:
         probabilities = nodes[node]['probabilities']
@@ -41,19 +40,68 @@ def add_additional_probabilities(nodes):
             if(new_probability not in probabilities):
                 probabilities.append(new_probability)
 
+def get_probability(nodes, expression):
+    # Get node
+
+    node = nodes[expression[0][1:]]
+
+    # An array to save que items in the same order as cpt
+    formated_p = [expression[0]]
+
+    # Delete unnecesary values and format:
+    for i in range(0, len(node['parents'])):
+        for j in range(1, len(expression)):
+            if(node['parents'][i] == expression[j][1:]):
+                formated_p.append(expression[j])
+
+    # Search for the probability in cpt and get the value
+    for i in range(0,len(node['probabilities'])):
+        if(node['probabilities'][i][:-1] == formated_p):
+            value = node['probabilities'][i][-1]
+
+    return value
+
+def enumerate():
+    return [['+Rain','+Sprinkler'], ['+Rain','-Sprinkler'], ['-Rain', '+Sprinkler'], ['-Rain', '-Sprinkler']]
+
+def probability_algorithm(query, nodes):
+    # Enumerate the query
+
+    # For each enumerated probability, get the rest of the components:
+        # Example: Enumerated = ['+GrassWet', '+Rain', '-Sprinkler']  Missing components: ['+Rain', '-Sprinkler', '+GrassWet'] and ['-Sprinkler', '+GrassWet', '+Rain']
+
+    # The content of the query expanded would be:
+        #[[['+GrassWet', '+Rain', '-Sprinkler'],['+Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '+Rain']], [ Other arrays of queries], [Arrays of queries]]
+    expanded_query = [[['+GrassWet', '+Rain', '-Sprinkler'],['+Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '+Rain']], [['+GrassWet', '-Rain', '-Sprinkler'],['-Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '-Rain']]]
+    pp.pprint(expanded_query)
+    value = 1
+    answer = 0
+    for i in range(0, len(expanded_query)):
+        for j in range(0,len(expanded_query[i])):
+            value = value * get_probability(nodes, expanded_query[i][j])
+            print("Value = ", value)
+        answer += value
+        print("Answer = ", answer)
+
+    return answer
+
 def main():
     file_input = fileinput.input()
 
     # Nodes are formated in the function format_nodes()
     nodes = format_nodes(file_input.readline())
 
-    # Probabilities
+    # Probabilities -----------------------------------------------------------------------------
     num_prob = int(file_input.readline())
     probabilities = []
     for i in range (0,num_prob):
         line = file_input.readline().replace("\n", "")
         add_probability(nodes, line)
-    # Saving parents
+    # Calculate the rest of the table
+    add_additional_probabilities(nodes)
+
+
+    # Saving parents -----------------------------------------------------------------------------
     for node in nodes:
         parents = nodes[node]['probabilities'][0][1:len(nodes[node]['probabilities'][0])-1]
         for i in range(0,len(parents)):
@@ -61,15 +109,22 @@ def main():
         nodes[node]['parents'] = parents
     print("\n")
     pp.pprint(nodes)
-    # Test is a float
-    # print(nodes['GrassWet']['probabilities'][0][3]+nodes['GrassWet']['probabilities'][1][3])
-    # Queries
+
+    # Queries -------------------------------------------------------------------------------------
     num_que = int(file_input.readline())
     queries = []
     for i in range(0, num_que):
         line = file_input.readline().replace("\n", "")
-        queries.append(line.split("="))
-    #calculate the rest of the table
-    add_additional_probabilities(nodes)
+        queries.append(line.replace('|',' ').replace(',',' ').replace('=',' ').split())
+
+
+    answers = []
+    # Algorithm -----------------------------------------------------------------------------------
+    #for query in queries:
+        #answers.append(probability_algorithm(query, nodes))
+    answers.append(probability_algorithm(1, nodes))
+    print("ANSWERS =", answers)
+
+
 if __name__ == "__main__":
     main()
