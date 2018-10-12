@@ -42,7 +42,6 @@ def add_additional_probabilities(nodes):
 
 def get_probability(nodes, expression):
     # Get node
-
     node = nodes[expression[0][1:]]
 
     # An array to save que items in the same order as cpt
@@ -58,30 +57,46 @@ def get_probability(nodes, expression):
     for i in range(0,len(node['probabilities'])):
         if(node['probabilities'][i][:-1] == formated_p):
             value = node['probabilities'][i][-1]
-
     return value
 
-def enumerate():
-    return [['+Rain','+Sprinkler'], ['+Rain','-Sprinkler'], ['-Rain', '+Sprinkler'], ['-Rain', '-Sprinkler']]
+def get_ancestors(query, nodes, ancestors, fixed):
+    if(len(fixed) == 0):
+        for element in query:
+            fixed.append(element[1:])
+
+    if(len(query) == 0):
+        return ancestors
+    else:
+        parents = copy.deepcopy(nodes[query[0][1:]]['parents'])
+        for parent in parents:
+            if (parent not in ancestors and parent not in fixed):
+                 ancestors.append(parent)
+        get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
-    # Enumerate the query
+
+
+    # Get ancestors of the first node in the query
+    ancestors = get_ancestors(query, nodes, [], [])
+
+    # Enumerate the ancestors
+    #enumerate = all_combinations(ancestors)
+
+    # For each enumeration (evidence), append the fixed value at the beginning
 
     # For each enumerated probability, get the rest of the components:
         # Example: Enumerated = ['+GrassWet', '+Rain', '-Sprinkler']  Missing components: ['+Rain', '-Sprinkler', '+GrassWet'] and ['-Sprinkler', '+GrassWet', '+Rain']
 
     # The content of the query expanded would be:
         #[[['+GrassWet', '+Rain', '-Sprinkler'],['+Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '+Rain']], [ Other arrays of queries], [Arrays of queries]]
+        # [ ['+GrassWet', '+Rain', '-Sprinkler'] , ]
     expanded_query = [[['+GrassWet', '+Rain', '-Sprinkler'],['+Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '+Rain']], [['+GrassWet', '-Rain', '-Sprinkler'],['-Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '-Rain']]]
-    pp.pprint(expanded_query)
     value = 1
     answer = 0
     for i in range(0, len(expanded_query)):
         for j in range(0,len(expanded_query[i])):
             value = value * get_probability(nodes, expanded_query[i][j])
-            print("Value = ", value)
         answer += value
-        print("Answer = ", answer)
 
     return answer
 
@@ -92,6 +107,7 @@ def all_combinations(probabilitesArray):
         combinations.append(copy.deepcopy(probabilitesArray))
     half_true_half_false(probabilitesArray, 0, int(num_combinations/2), combinations, '+', 0)
     half_true_half_false(probabilitesArray, int(num_combinations/2), num_combinations, combinations, '-', 0)
+    return combinations
     #print(combinations)
 
 def half_true_half_false(probabilitesArray,  inicio, fin, combinations, sign, i):
@@ -137,10 +153,8 @@ def main():
 
     answers = []
     # Algorithm -----------------------------------------------------------------------------------
-    #for query in queries:
-        #answers.append(probability_algorithm(query, nodes))
-    answers.append(probability_algorithm(1, nodes))
-    print("ANSWERS =", answers)
+    for query in queries:
+        answers.append(probability_algorithm(query, nodes))
 
     #merge conflicts
     #queries.append(line.split("="))
