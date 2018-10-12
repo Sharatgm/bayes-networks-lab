@@ -41,6 +41,23 @@ def add_additional_probabilities(nodes):
             if(new_probability not in probabilities):
                 probabilities.append(new_probability)
 
+def all_combinations(probabilitesArray):
+    num_combinations = 2 ** len(probabilitesArray) #exponent
+    combinations=[]
+    for j in range (0,num_combinations):
+        combinations.append(copy.deepcopy(probabilitesArray))
+    half_true_half_false(probabilitesArray, 0, int(num_combinations/2), combinations, '+', 0)
+    half_true_half_false(probabilitesArray, int(num_combinations/2), num_combinations, combinations, '-', 0)
+    #print(combinations)
+
+def half_true_half_false(probabilitesArray,  inicio, fin, combinations, sign, i):
+    if( i<len(probabilitesArray) ):
+        letter = copy.deepcopy(probabilitesArray[i])
+        for j in range (inicio,fin):
+            combinations[j][i]= sign+letter
+        half_true_half_false(probabilitesArray, inicio, inicio+int((fin-inicio)/2), combinations, '+', i+1)
+        half_true_half_false(probabilitesArray, inicio+int((fin-inicio)/2), fin, combinations, '-', i+1)
+
 def main():
     file_input = fileinput.input()
 
@@ -71,5 +88,6 @@ def main():
         queries.append(line.split("="))
     #calculate the rest of the table
     add_additional_probabilities(nodes)
+    all_combinations(["S", "M", "T"])
 if __name__ == "__main__":
     main()
