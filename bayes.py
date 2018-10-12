@@ -71,7 +71,7 @@ def get_ancestors(query, nodes, ancestors, fixed):
         for parent in parents:
             if (parent not in ancestors and parent not in fixed):
                  ancestors.append(parent)
-        get_ancestors(query[1:], nodes, ancestors, fixed)
+        return get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
 
@@ -80,7 +80,7 @@ def probability_algorithm(query, nodes):
     ancestors = get_ancestors(query, nodes, [], [])
 
     # Enumerate the ancestors
-    #enumerate = all_combinations(ancestors)
+    enumerate = all_combinations(ancestors)
 
     # For each enumeration (evidence), append the fixed value at the beginning
 
