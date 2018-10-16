@@ -3,6 +3,14 @@ import fileinput
 import time
 import pprint as pp
 
+
+def delete_signs(list):
+    list_aux = []
+    for item in list:
+        list_aux.append(item[1:])
+    return list_aux
+
+
 def format_nodes(line):
     # Create the nodes given their names
     names = line.replace("\n","").split(",")
@@ -70,21 +78,27 @@ def get_probability(nodes, expression):
 def get_ancestors(query, nodes, ancestors, fixed):
     if(len(fixed) == 0):
         for element in query:
-            fixed.append(element[1:])
+            fixed.append(element)
 
     if(len(query) == 0):
         return ancestors
     else:
-        parents = copy.deepcopy(nodes[query[0][1:]]['parents'])
+        parents = copy.deepcopy(nodes[query[0]]['parents'])
         for parent in parents:
             if (parent not in ancestors and parent not in fixed):
                  ancestors.append(parent)
+                 if(parent not in query):
+                     query.append(parent)
 
         return get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
+    # Delete signs
+
+
+
     # Get ancestors of the first node in the query
-    ancestors_numerator = get_ancestors(query[0], nodes, [], [])
+    ancestors_numerator = get_ancestors(delete_signs(query[0]), nodes, [], [])
 
     #print("Acestors numerator = ", ancestors_numerator)
     # Enumerate the ancestors
@@ -96,7 +110,7 @@ def probability_algorithm(query, nodes):
         numerator += get_probability(nodes, item)
 
     if(len(query[1]) > 0):
-        ancestors_denominator = get_ancestors(query[1], nodes, [], [])
+        ancestors_denominator = get_ancestors(delete_signs(query[1]), nodes, [], [])
         enumerate_denominator = all_combinations(ancestors_denominator)
 
         denominator = 0
