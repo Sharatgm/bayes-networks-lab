@@ -97,6 +97,7 @@ def probability_algorithm(query, nodes):
 
     if(len(query[1]) > 0):
         ancestors_denominator = get_ancestors(query[1], nodes, [], [])
+        #enumeration algorithm
         enumerate_denominator = all_combinations(ancestors_denominator)
 
         denominator = 0
