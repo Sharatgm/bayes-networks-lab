@@ -41,22 +41,32 @@ def add_additional_probabilities(nodes):
                 probabilities.append(new_probability)
 
 def get_probability(nodes, expression):
-    # Get node
-    node = nodes[expression[0][1:]]
+    value = 1
+    print("------------\nExpression = ", expression)
+    for item in expression:
+        # Get node
+        node = nodes[item[1:]]
+        # Save the value of the node to add it to the beginning of the expression later
+        main = copy.deepcopy(item)
+        formated_p = []
 
-    # An array to save que items in the same order as cpt
-    formated_p = [expression[0]]
+        # Delete unnecesary values and format the expression:
+        for parent in node['parents']:
+            for element in expression:
+                if(parent == element[1:]):
+                    formated_p.append(element)
 
-    # Delete unnecesary values and format:
-    for i in range(0, len(node['parents'])):
-        for j in range(1, len(expression)):
-            if(node['parents'][i] == expression[j][1:]):
-                formated_p.append(expression[j])
 
-    # Search for the probability in cpt and get the value
-    for i in range(0,len(node['probabilities'])):
-        if(node['probabilities'][i][:-1] == formated_p):
-            value = node['probabilities'][i][-1]
+        # Add the main value to the beginning of the expression
+        formated_p = [main] + formated_p
+        print("formated_p =", formated_p)
+
+        # Search for the probability in cpt and get the value
+        for probability in node['probabilities']:
+            if(probability[0:-1] == formated_p):
+                value = value * probability[-1]
+                print("Value = ", probability[-1])
+    print("value =", value)
     return value
 
 def get_ancestors(query, nodes, ancestors, fixed):
@@ -75,29 +85,32 @@ def get_ancestors(query, nodes, ancestors, fixed):
 
 def probability_algorithm(query, nodes):
 
-
     # Get ancestors of the first node in the query
-    ancestors = get_ancestors(query, nodes, [], [])
+    ancestors_numerator = get_ancestors(query, nodes, [], [])
+    ancestors_denominator = get_ancestors(query[1:], nodes, [], [])
 
+    print("Acestors numerator = ", ancestors_numerator)
     # Enumerate the ancestors
-    enumerate = all_combinations(ancestors)
+    enumerate_numerator = all_combinations(ancestors_numerator)
 
-    # For each enumeration (evidence), append the fixed value at the beginning
+    numerator = 0
+    for item in enumerate_numerator:
+        item = query + item
+        numerator += get_probability(nodes, item)
 
-    # For each enumerated probability, get the rest of the components:
-        # Example: Enumerated = ['+GrassWet', '+Rain', '-Sprinkler']  Missing components: ['+Rain', '-Sprinkler', '+GrassWet'] and ['-Sprinkler', '+GrassWet', '+Rain']
+    if(len(ancestors_denominator) > 0):
+        enumerate_denominator = all_combinations(ancestors_denominator)
 
-    # The content of the query expanded would be:
-        #[[['+GrassWet', '+Rain', '-Sprinkler'],['+Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '+Rain']], [ Other arrays of queries], [Arrays of queries]]
-        # [ ['+GrassWet', '+Rain', '-Sprinkler'] , ]
-    expanded_query = [[['+GrassWet', '+Rain', '-Sprinkler'],['+Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '+Rain']], [['+GrassWet', '-Rain', '-Sprinkler'],['-Rain', '-Sprinkler', '+GrassWet'],['-Sprinkler', '+GrassWet', '-Rain']]]
-    value = 1
-    answer = 0
-    for i in range(0, len(expanded_query)):
-        for j in range(0,len(expanded_query[i])):
-            value = value * get_probability(nodes, expanded_query[i][j])
-        answer += value
+        denominator = 0
+        for item in enumerate_denominator:
+            item = query + item
+            denominator += get_probability(nodes, item)
 
+        answer = numerator/denominator
+    else:
+        answer = numerator
+
+    print("Answer = ", answer)
     return answer
 
 def all_combinations(probabilitesArray):
