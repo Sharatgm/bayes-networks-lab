@@ -81,13 +81,11 @@ def get_ancestors(query, nodes, ancestors, fixed):
         for parent in parents:
             if (parent not in ancestors and parent not in fixed):
                  ancestors.append(parent)
-        print("Ancestors =", ancestors)
         return get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
 
     # Get ancestors of the first node in the query
-    print("QUERY = ", query)
     ancestors_numerator = get_ancestors(query[0], nodes, [], [])
 
     #print("Acestors numerator = ", ancestors_numerator)
@@ -155,8 +153,6 @@ def main():
         for i in range(0,len(parents)):
             parents[i] = parents[i][1:]
         nodes[node]['parents'] = parents
-    print("\n")
-    pp.pprint(nodes)
 
     # Queries -------------------------------------------------------------------------------------
     num_que = int(file_input.readline())
