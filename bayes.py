@@ -79,12 +79,12 @@ def get_ancestors(query, nodes, ancestors, fixed):
         for parent in parents:
             if (parent not in ancestors and parent not in fixed):
                  ancestors.append(parent)
-                 query.append('+'+parent)
         return get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
     # Get ancestors of the first node in the query
     ancestors_numerator = get_ancestors(query[0], nodes, [], [])
+
     #print("Acestors numerator = ", ancestors_numerator)
     # Enumerate the ancestors
     enumerate_numerator = all_combinations(ancestors_numerator)
@@ -97,6 +97,7 @@ def probability_algorithm(query, nodes):
     if(len(query[1]) > 0):
         ancestors_denominator = get_ancestors(query[1], nodes, [], [])
         enumerate_denominator = all_combinations(ancestors_denominator)
+
         denominator = 0
         for item in enumerate_denominator:
             item = query[1] + item
@@ -162,6 +163,7 @@ def main():
             condition = []
         query = [line.replace('|',',').split(',') , condition]
         queries.append(query)
+
     answers = []
     # Algorithm -----------------------------------------------------------------------------------
     for query in queries:
