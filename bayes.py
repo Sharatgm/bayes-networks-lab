@@ -44,6 +44,8 @@ def add_additional_probabilities(nodes):
 
 def get_probability(nodes, expression):
     value = 1.0
+
+    print("--------\nExpression = ", expression)
     for item in expression:
         # Get node
         node = nodes[item[1:]]
@@ -57,28 +59,34 @@ def get_probability(nodes, expression):
                 if(parent == element[1:]):
                     formated_p.append(element)
 
-
         # Add the main value to the beginning of the expression
         formated_p = [main] + formated_p
+        print("formated_p =", formated_p)
 
         # Search for the probability in cpt and get the value
         for probability in node['probabilities']:
             if(probability[0:-1] == formated_p):
+                print("Probability =", probability[0:-1])
+                print(value, "=", value, "*", probability[-1])
                 value = value * probability[-1]
     return value
 
 def get_ancestors(query, nodes, ancestors, fixed):
+    print("Query =", query)
     if(len(fixed) == 0):
         for element in query:
             fixed.append(element[1:])
 
     if(len(query) == 0):
+        print("Ancestors = ", ancestors)
         return ancestors
     else:
         parents = copy.deepcopy(nodes[query[0][1:]]['parents'])
         for parent in parents:
             if (parent not in ancestors and parent not in fixed):
                  ancestors.append(parent)
+            #if('+'+parent not in query and '-'+parent not in query):
+                    #query.append('+'+parent)
         return get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
@@ -102,7 +110,7 @@ def probability_algorithm(query, nodes):
         for item in enumerate_denominator:
             item = query[1] + item
             denominator += get_probability(nodes, item)
-
+        print(numerator, "/", denominator)
         answer = numerator/denominator
     else:
         answer = numerator
@@ -151,6 +159,7 @@ def main():
             parents[i] = parents[i][1:]
         nodes[node]['parents'] = parents
 
+    pp.pprint(nodes)
     # Queries -------------------------------------------------------------------------------------
     num_que = int(file_input.readline())
     queries = []
