@@ -34,15 +34,16 @@ def add_additional_probabilities(nodes):
             new_probability = copy.deepcopy(probability)
             #replace the sign (keep the rest of the word)
             new_probability[0] = new_sign+probability[0][1:]
+
             #calculate the complement of the probability
-            new_probability[len(new_probability)-1] = round(1-probability[len(new_probability)-1],2)
+            new_probability[len(new_probability)-1] = round(1-probability[len(new_probability)-1],7)
+
             # add the new probability only if it doesn't exist already
             if(new_probability not in probabilities):
                 probabilities.append(new_probability)
 
 def get_probability(nodes, expression):
-    value = 1
-    #print("------------\nExpression = ", expression)
+    value = 1.0
     for item in expression:
         # Get node
         node = nodes[item[1:]]
@@ -59,14 +60,11 @@ def get_probability(nodes, expression):
 
         # Add the main value to the beginning of the expression
         formated_p = [main] + formated_p
-        #print("formated_p =", formated_p)
 
         # Search for the probability in cpt and get the value
         for probability in node['probabilities']:
             if(probability[0:-1] == formated_p):
                 value = value * probability[-1]
-                #print("Value = ", probability[-1])
-    #print("value =", value)
     return value
 
 def get_ancestors(query, nodes, ancestors, fixed):
@@ -81,13 +79,12 @@ def get_ancestors(query, nodes, ancestors, fixed):
         for parent in parents:
             if (parent not in ancestors and parent not in fixed):
                  ancestors.append(parent)
+                 query.append('+'+parent)
         return get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
-
     # Get ancestors of the first node in the query
     ancestors_numerator = get_ancestors(query[0], nodes, [], [])
-
     #print("Acestors numerator = ", ancestors_numerator)
     # Enumerate the ancestors
     enumerate_numerator = all_combinations(ancestors_numerator)
@@ -100,7 +97,6 @@ def probability_algorithm(query, nodes):
     if(len(query[1]) > 0):
         ancestors_denominator = get_ancestors(query[1], nodes, [], [])
         enumerate_denominator = all_combinations(ancestors_denominator)
-
         denominator = 0
         for item in enumerate_denominator:
             item = query[1] + item
@@ -160,20 +156,19 @@ def main():
     for i in range(0, num_que):
         line = file_input.readline().replace("\n", "")
         if('|' in line):
-            condition = [line.split('|')[1]]
+            condition = line.split('|')[1]
+            condition = condition.split(',')
         else:
             condition = []
         query = [line.replace('|',',').split(',') , condition]
         queries.append(query)
-
-
     answers = []
     # Algorithm -----------------------------------------------------------------------------------
     for query in queries:
         answers.append(probability_algorithm(query, nodes))
 
     for answer in answers:
-        print(answer)
+        print(round(answer,7))
 
 
 if __name__ == "__main__":
