@@ -42,7 +42,7 @@ def add_additional_probabilities(nodes):
 
 def get_probability(nodes, expression):
     value = 1
-    print("------------\nExpression = ", expression)
+    #print("------------\nExpression = ", expression)
     for item in expression:
         # Get node
         node = nodes[item[1:]]
@@ -59,14 +59,14 @@ def get_probability(nodes, expression):
 
         # Add the main value to the beginning of the expression
         formated_p = [main] + formated_p
-        print("formated_p =", formated_p)
+        #print("formated_p =", formated_p)
 
         # Search for the probability in cpt and get the value
         for probability in node['probabilities']:
             if(probability[0:-1] == formated_p):
                 value = value * probability[-1]
-                print("Value = ", probability[-1])
-    print("value =", value)
+                #print("Value = ", probability[-1])
+    #print("value =", value)
     return value
 
 def get_ancestors(query, nodes, ancestors, fixed):
@@ -81,36 +81,38 @@ def get_ancestors(query, nodes, ancestors, fixed):
         for parent in parents:
             if (parent not in ancestors and parent not in fixed):
                  ancestors.append(parent)
+        print("Ancestors =", ancestors)
         return get_ancestors(query[1:], nodes, ancestors, fixed)
 
 def probability_algorithm(query, nodes):
 
     # Get ancestors of the first node in the query
-    ancestors_numerator = get_ancestors(query, nodes, [], [])
-    ancestors_denominator = get_ancestors(query[1:], nodes, [], [])
+    print("QUERY = ", query)
+    ancestors_numerator = get_ancestors(query[0], nodes, [], [])
 
-    print("Acestors numerator = ", ancestors_numerator)
+    #print("Acestors numerator = ", ancestors_numerator)
     # Enumerate the ancestors
     enumerate_numerator = all_combinations(ancestors_numerator)
 
     numerator = 0
     for item in enumerate_numerator:
-        item = query + item
+        item = query[0] + item
         numerator += get_probability(nodes, item)
 
-    if(len(ancestors_denominator) > 0):
+    if(len(query[1]) > 0):
+        ancestors_denominator = get_ancestors(query[1], nodes, [], [])
         enumerate_denominator = all_combinations(ancestors_denominator)
 
         denominator = 0
         for item in enumerate_denominator:
-            item = query + item
+            item = query[1] + item
             denominator += get_probability(nodes, item)
 
         answer = numerator/denominator
     else:
         answer = numerator
 
-    print("Answer = ", answer)
+    #print("Answer = ", answer)
     return answer
 
 def all_combinations(probabilitesArray):
@@ -161,7 +163,12 @@ def main():
     queries = []
     for i in range(0, num_que):
         line = file_input.readline().replace("\n", "")
-        queries.append(line.replace('|',' ').replace(',',' ').replace('=',' ').split())
+        if('|' in line):
+            condition = [line.split('|')[1]]
+        else:
+            condition = []
+        query = [line.replace('|',',').split(',') , condition]
+        queries.append(query)
 
 
     answers = []
@@ -169,11 +176,9 @@ def main():
     for query in queries:
         answers.append(probability_algorithm(query, nodes))
 
-    #merge conflicts
-    #queries.append(line.split("="))
-    #calculate the rest of the table
-    #add_additional_probabilities(nodes)
-    #all_combinations(["S", "M", "T"])
+    for answer in answers:
+        print(answer)
+
 
 if __name__ == "__main__":
     main()
